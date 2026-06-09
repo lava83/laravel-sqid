@@ -1,59 +1,106 @@
-# laravel-sqid is a Laravel package that provides a simple and efficient way to generate and manage sequential unique identifiers (SQIDs) in your Laravel applications. SQIDs are designed to be compact, URL-friendly, and sortable, making them ideal for use as primary keys or unique identifiers in databases.
+# Laravel Sqid
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/lava83/laravel-sqid.svg?style=flat-square)](https://packagist.org/packages/lava83/laravel-sqid)
-[![GitHub Tests Action Status](https://github.com/spatie/package-laravel-sqid-laravel/actions/workflows/run-tests.yml/badge.svg)](https://github.com/lava83/laravel-sqid/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![GitHub Code Style Action Status](https://github.com/spatie/package-laravel-sqid-laravel/actions/workflows/fix-php-code-style-issues.yml/badge.svg)](https://github.com/lava83/laravel-sqid/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
+[![GitHub Tests Action Status](https://github.com/lava83/laravel-sqid/actions/workflows/run-tests.yml/badge.svg)](https://github.com/lava83/laravel-sqid/actions?query=workflow%3Arun-tests+branch%3Amain)
+[![GitHub Code Style Action Status](https://github.com/lava83/laravel-sqid/actions/workflows/fix-php-code-style-issues.yml/badge.svg)](https://github.com/lava83/laravel-sqid/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/lava83/laravel-sqid.svg?style=flat-square)](https://packagist.org/packages/lava83/laravel-sqid)
 
-This is where your description should go. Limit it to a paragraph or two. Consider adding a small example.
+A thin, idiomatic Laravel integration for [Sqids](https://sqids.org/). It encodes lists of integers into short, URL-friendly strings and decodes them back, configurable via `alphabet`, `min_length` and `blocklist`.
 
-## Support us
+> **Note:** Sqids are **not** sequential, sortable or cryptographically secure, and they are **not** meant to replace database primary keys. They obfuscate integers into compact, unguessable-looking strings — for example to expose internal IDs in URLs without leaking the raw values.
 
-[<img src="https://github-ads.s3.eu-central-1.amazonaws.com/laravel-sqid.jpg?t=1" width="419px" />](https://spatie.be/github-ad-click/laravel-sqid)
+```php
+use Lava83\LaravelSqid\Facades\LaravelSqid;
 
-We invest a lot of resources into creating [best in class open source packages](https://spatie.be/open-source). You can support us by [buying one of our paid products](https://spatie.be/open-source/support-us).
+LaravelSqid::encode([1, 2, 3]);   // "86Rf07"
+LaravelSqid::decode('86Rf07');    // Collection: [1, 2, 3]
+```
 
-We highly appreciate you sending us a postcard from your hometown, mentioning which of our package(s) you are using. You'll find our address on [our contact page](https://spatie.be/about-us). We publish all received postcards on [our virtual postcard wall](https://spatie.be/open-source/postcards).
+## Requirements
+
+- PHP `^8.3`
+- Laravel 12 or 13 (`illuminate/contracts` `^12.0||^13.0`)
 
 ## Installation
 
-You can install the package via composer:
+Install the package via Composer:
 
 ```bash
 composer require lava83/laravel-sqid
 ```
 
-You can publish and run the migrations with:
+The service provider and the `LaravelSqid` facade are registered automatically via package discovery.
 
-```bash
-php artisan vendor:publish --tag="laravel-sqid-migrations"
-php artisan migrate
-```
-
-You can publish the config file with:
+Optionally publish the config file:
 
 ```bash
 php artisan vendor:publish --tag="laravel-sqid-config"
 ```
 
-This is the contents of the published config file:
+## Configuration
+
+The published `config/sqid.php` looks like this:
 
 ```php
+use Sqids\Sqids;
+
 return [
+    'min_length' => env('LARAVEL_SQID_MIN_LENGTH', Sqids::DEFAULT_MIN_LENGTH),
+    'alphabet' => env('LARAVEL_SQID_ALPHABET', Sqids::DEFAULT_ALPHABET),
+    'blocklist' => env('LARAVEL_SQID_BLOCKLIST', Sqids::DEFAULT_BLOCKLIST),
 ];
 ```
 
-Optionally, you can publish the views using
+All three options can be driven by environment variables:
 
-```bash
-php artisan vendor:publish --tag="laravel-sqid-views"
-```
+| ENV variable               | Config key   | Description                                              |
+|----------------------------|--------------|----------------------------------------------------------|
+| `LARAVEL_SQID_MIN_LENGTH`  | `min_length` | Minimum length of the generated Sqid string.             |
+| `LARAVEL_SQID_ALPHABET`    | `alphabet`   | Custom alphabet used for encoding.                       |
+| `LARAVEL_SQID_BLOCKLIST`   | `blocklist`  | Words that must not appear in any generated Sqid string. |
+
+The underlying `Sqids\Sqids` instance is bound in the container from this config, so customizing the config is all you need.
 
 ## Usage
 
+### Facade
+
 ```php
-$laravelSqid = new Lava83\LaravelSqid();
-echo $laravelSqid->echoPhrase('Hello, Lava83!');
+use Lava83\LaravelSqid\Facades\LaravelSqid;
+
+// Encode an array or a Collection of integers
+LaravelSqid::encode([1, 2, 3]);          // "86Rf07"
+LaravelSqid::encode(collect([1, 2, 3])); // "86Rf07"
+
+// Decode back into a Collection<int>
+LaravelSqid::decode('86Rf07');           // collect([1, 2, 3])
+```
+
+### Helpers
+
+Global helper functions are available everywhere:
+
+```php
+sqid_encode([1, 2, 3]);   // "86Rf07"
+sqid_decode('86Rf07');    // collect([1, 2, 3])
+```
+
+### Collection macro
+
+A `sqidsEncode()` macro is mixed into `Illuminate\Support\Collection`:
+
+```php
+collect([1, 2, 3])->sqidsEncode(); // "86Rf07"
+```
+
+### Encoding only accepts integers
+
+`encode()` (and therefore the helper and the collection macro) only accepts integers. Anything else throws an `OnlyIntegersCanBeSqidEncoded` exception:
+
+```php
+use Lava83\LaravelSqid\Exceptions\OnlyIntegersCanBeSqidEncoded;
+
+LaravelSqid::encode([1, 2, 'foo']); // throws OnlyIntegersCanBeSqidEncoded
 ```
 
 ## Testing

@@ -1,13 +1,14 @@
 {
     "name": "lava83/laravel-sqid",
-    "description": "laravel-sqid is a Laravel package that provides a simple and efficient way to generate and manage sequential unique identifiers (SQIDs) in your Laravel applications. SQIDs are designed to be compact, URL-friendly, and sortable, making them ideal for use as primary keys or unique identifiers in databases.",
+    "description": "A thin Laravel integration for Sqids: encode lists of integers into short, URL-friendly strings and decode them back, configurable via alphabet, min_length and blocklist.",
     "keywords": [
         "lava83",
         "laravel",
         "laravel-sqid",
         "sqids",
-        "unique identifiers",
-        "sequential identifiers"
+        "encode",
+        "decode",
+        "url-friendly"
     ],
     "homepage": "https://github.com/lava83/laravel-sqid",
     "license": "MIT",

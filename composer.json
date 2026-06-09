@@ -1,24 +1,28 @@
 {
-    "name": ":vendor_slug/:package_slug",
-    "description": ":package_description",
+    "name": "lava83/laravel-sqid",
+    "description": "laravel-sqid is a Laravel package that provides a simple and efficient way to generate and manage sequential unique identifiers (SQIDs) in your Laravel applications. SQIDs are designed to be compact, URL-friendly, and sortable, making them ideal for use as primary keys or unique identifiers in databases.",
     "keywords": [
-        ":vendor_name",
+        "lava83",
         "laravel",
-        ":package_slug"
+        "laravel-sqid",
+        "sqids",
+        "unique identifiers",
+        "sequential identifiers"
     ],
-    "homepage": "https://github.com/:vendor_slug/:package_slug",
+    "homepage": "https://github.com/lava83/laravel-sqid",
     "license": "MIT",
     "authors": [
         {
-            "name": ":author_name",
-            "email": "author@domain.com",
-            "role": "Developer"
+            "name": "Stefan Riedel",
+            "email": "stefan.riedel.bo@gmail.com",
+            "role": "Owner"
         }
     ],
     "require": {
         "php": "^8.4",
+        "illuminate/contracts": "^12.0||^13.0",
         "spatie/laravel-package-tools": "^1.16",
-        "illuminate/contracts": "^11.0||^12.0||^13.0"
+        "sqids/sqids": "^0.5.0"
     },
     "require-dev": {
         "laravel/pint": "^1.14",
@@ -30,18 +34,20 @@
         "pestphp/pest-plugin-laravel": "^4.0",
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan-deprecation-rules": "^2.0",
-        "phpstan/phpstan-phpunit": "^2.0",
-        "spatie/laravel-ray": "^1.35"
+        "phpstan/phpstan-phpunit": "^2.0"
     },
     "autoload": {
         "psr-4": {
-            "VendorName\\Skeleton\\": "src/",
-            "VendorName\\Skeleton\\Database\\Factories\\": "database/factories/"
-        }
+            "Lava83\\LaravelSqid\\": "src/",
+            "Lava83\\LaravelSqid\\Database\\Factories\\": "database/factories/"
+        },
+        "files": [
+            "src/helpers.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
-            "VendorName\\Skeleton\\Tests\\": "tests/",
+            "Lava83\\LaravelSqid\\Tests\\": "tests/",
             "Workbench\\App\\": "workbench/app/"
         }
     },
@@ -63,10 +69,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "VendorName\\Skeleton\\SkeletonServiceProvider"
+                "Lava83\\LaravelSqid\\LaravelSqidServiceProvider"
             ],
             "aliases": {
-                "Skeleton": "VendorName\\Skeleton\\Facades\\Skeleton"
+                "LaravelSqid": "Lava83\\LaravelSqid\\Facades\\LaravelSqid"
             }
         }
     },

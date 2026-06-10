@@ -2,6 +2,7 @@ name: "Update Changelog"
 
 permissions:
   contents: write
+  pull-requests: write
 
 on:
   release:
@@ -27,6 +28,20 @@ jobs:
       - name: Commit updated CHANGELOG
         uses: stefanzweifel/git-auto-commit-action@04702edda442b2e678b25b537cec683a1493fcb9 # v7.0
         with:
-          branch: main
+          branch: changelog/${{ github.event.release.tag_name }}
+          create_branch: true
           commit_message: Update CHANGELOG
           file_pattern: CHANGELOG.md
+
+      - name: Create Pull Request
+        run: |
+          gh pr create \
+            --base main \
+            --head "changelog/${{ github.event.release.tag_name }}" \
+            --title "Update CHANGELOG for ${{ github.event.release.tag_name }}" \
+            --body "Automated CHANGELOG update for release ${{ github.event.release.tag_name }}" \
+          || gh pr edit "changelog/${{ github.event.release.tag_name }}" \
+            --title "Update CHANGELOG for ${{ github.event.release.tag_name }}" \
+            --body "Automated CHANGELOG update for release ${{ github.event.release.tag_name }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

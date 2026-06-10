@@ -1,8 +1,5 @@
 name: "Update Changelog"
 
-permissions:
-  contents: write
-
 on:
   release:
     types: [released]
@@ -11,6 +8,9 @@ jobs:
   update:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout code
